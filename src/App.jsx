@@ -16,6 +16,8 @@ import Categories from './pages/admin/Categories'
 import Reviews from './pages/admin/Reviews'
 import Orders from './pages/admin/Orders'
 import Settings from './pages/admin/Settings'
+import Profile from './pages/admin/Profile'
+import Admins from './pages/admin/Admins'
 
 function Storefront() {
   const { pathname } = useLocation()
@@ -43,6 +45,8 @@ export default function App() {
         <Route path="/admin/reviews" element={<Reviews />} />
         <Route path="/admin/orders" element={<Orders />} />
         <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/profile" element={<Profile />} />
+        <Route path="/admin/admins" element={<Admins />} />
       </Route>
     </Routes>
   )

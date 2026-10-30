@@ -53,4 +53,6 @@ export const seed = {
     { id: 'o1', code: 'APGL-1001', customer_name: 'Chioma A.', phone: '08012345678', items: '1x Crystal Glass Leaf Chandelier', total: 285000, status: 'Packed', note: 'Delivery to Lekki', created_at: new Date(Date.now() - 2 * 864e5).toISOString() },
   ],
   enquiries: [],
+  // DEMO login. Live mode uses real Supabase accounts instead.
+  admins: [{ id: 'a1', email: 'admin@apgl.com', password: 'admin123', must_change: true, created_at: new Date().toISOString() }],
 }

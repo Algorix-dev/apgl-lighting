@@ -29,9 +29,14 @@ const AuthCtx = createContext({})
 export const useAuth = () => useContext(AuthCtx)
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined) // undefined = still checking
-  const refresh = useCallback(() => auth.session().then(setSession), [])
+  const [me, setMe] = useState(null) // { email, mustChange }
+  const refresh = useCallback(async () => {
+    const s = await auth.session()
+    setMe(s ? await auth.me() : null)
+    setSession(s)
+  }, [])
   useEffect(() => { refresh() }, [refresh])
-  return <AuthCtx.Provider value={{ session, refresh }}>{children}</AuthCtx.Provider>
+  return <AuthCtx.Provider value={{ session, me, refresh }}>{children}</AuthCtx.Provider>
 }
 
 /* Enquiry list: like a shopping cart, but it ends in ONE WhatsApp message instead of a checkout */

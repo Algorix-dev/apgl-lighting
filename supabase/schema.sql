@@ -60,6 +60,18 @@ create table settings (
 );
 insert into settings (id, whatsapp, announcement) values (1, '2348000000000', 'Genuine lighting • Bulk & contractor prices • Chat with us on WhatsApp');
 
+-- Who is an admin. Being logged in is NOT enough any more: your user id must be in this table.
+create table admins (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text not null,
+  must_change_password boolean default true,
+  created_at timestamptz default now()
+);
+create function is_admin() returns boolean
+language sql security definer stable set search_path = public as $$
+  select exists (select 1 from admins where user_id = auth.uid())
+$$;
+
 -- Security: public can READ the shop, but only the signed-in admin can change anything.
 alter table categories enable row level security;
 alter table products   enable row level security;
@@ -67,6 +79,7 @@ alter table reviews    enable row level security;
 alter table orders     enable row level security;
 alter table enquiries  enable row level security;
 alter table settings   enable row level security;
+alter table admins     enable row level security;
 
 create policy "public read categories" on categories for select using (true);
 create policy "public read visible products" on products for select using (visible = true);
@@ -76,12 +89,15 @@ create policy "public read settings" on settings for select using (true);
 create policy "public submit review" on reviews for insert with check (approved = false);
 create policy "public log enquiry" on enquiries for insert with check (true);
 
-create policy "admin all categories" on categories for all to authenticated using (true) with check (true);
-create policy "admin all products"   on products   for all to authenticated using (true) with check (true);
-create policy "admin all reviews"    on reviews    for all to authenticated using (true) with check (true);
-create policy "admin all orders"     on orders     for all to authenticated using (true) with check (true);
-create policy "admin all enquiries"  on enquiries  for all to authenticated using (true) with check (true);
-create policy "admin all settings"   on settings   for all to authenticated using (true) with check (true);
+create policy "admins see admins" on admins for select to authenticated using (is_admin());
+create policy "admin updates own row" on admins for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+create policy "admin all categories" on categories for all to authenticated using (is_admin()) with check (is_admin());
+create policy "admin all products"   on products   for all to authenticated using (is_admin()) with check (is_admin());
+create policy "admin all reviews"    on reviews    for all to authenticated using (is_admin()) with check (is_admin());
+create policy "admin all orders"     on orders     for all to authenticated using (is_admin()) with check (is_admin());
+create policy "admin all enquiries"  on enquiries  for all to authenticated using (is_admin()) with check (is_admin());
+create policy "admin all settings"   on settings   for all to authenticated using (is_admin()) with check (is_admin());
 
 -- Customers check an order with code + phone. This function returns ONLY that one order's status.
 create function lookup_order(p_code text, p_phone text)
@@ -97,5 +113,9 @@ grant execute on function lookup_order to anon, authenticated;
 -- Photo storage (public bucket; only admin can upload)
 insert into storage.buckets (id, name, public) values ('products', 'products', true);
 create policy "public view photos" on storage.objects for select using (bucket_id = 'products');
-create policy "admin upload photos" on storage.objects for insert to authenticated with check (bucket_id = 'products');
-create policy "admin delete photos" on storage.objects for delete to authenticated using (bucket_id = 'products');
+create policy "admin upload photos" on storage.objects for insert to authenticated with check (bucket_id = 'products' and is_admin());
+create policy "admin delete photos" on storage.objects for delete to authenticated using (bucket_id = 'products' and is_admin());
+
+-- FIRST ADMIN (run after you create the user in Authentication > Users with a default password):
+-- insert into admins (user_id, email, must_change_password)
+-- select id, email, true from auth.users where email = 'client@example.com';

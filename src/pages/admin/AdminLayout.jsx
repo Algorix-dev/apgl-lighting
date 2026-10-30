@@ -1,5 +1,5 @@
-import { NavLink, Navigate, Outlet, Link } from 'react-router-dom'
-import { LayoutDashboard, Package, Tags, MessageSquareText, Truck, Settings as Cog, LogOut, ExternalLink } from 'lucide-react'
+import { NavLink, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
+import { LayoutDashboard, Package, Tags, MessageSquareText, Truck, Settings as Cog, LogOut, ExternalLink, UserCircle, ShieldPlus } from 'lucide-react'
 import { useAuth } from '../../lib/hooks'
 import { auth, resetDemo } from '../../lib/store'
 import { DEMO } from '../../lib/supabase'
@@ -7,13 +7,17 @@ import { DEMO } from '../../lib/supabase'
 const links = [
   ['/admin/dashboard', 'Dashboard', LayoutDashboard], ['/admin/products', 'Products', Package], ['/admin/categories', 'Categories', Tags],
   ['/admin/reviews', 'Reviews', MessageSquareText], ['/admin/orders', 'Orders', Truck], ['/admin/settings', 'Settings', Cog],
+  ['/admin/admins', 'Admins', ShieldPlus], ['/admin/profile', 'My profile', UserCircle],
 ]
 
 // TIP: every admin page sits inside this layout, so the login check lives in ONE place.
 export default function AdminLayout() {
-  const { session, refresh } = useAuth()
+  const { session, me, refresh } = useAuth()
+  const { pathname } = useLocation()
   if (session === undefined) return <div className="p-10">Loading…</div>
-  if (!session) return <Navigate to="/admin" replace />
+  if (!session || !me) return <Navigate to="/admin" replace />
+  // TIP: still on the default password? Everything except the Profile page is locked until it is changed.
+  if (me.mustChange && pathname !== '/admin/profile') return <Navigate to="/admin/profile" replace />
   const out = async () => { await auth.signOut(); refresh() }
   return (
     <div className="min-h-screen lg:flex">
@@ -25,6 +29,7 @@ export default function AdminLayout() {
           ))}
         </nav>
         <div className="hidden lg:block p-3 mt-4 space-y-1 text-sm">
+          <div className="px-3 py-1 text-xs text-white/50 truncate">{me.email}</div>
           <Link to="/" target="_blank" className="flex items-center gap-2 px-3 py-2 text-white/70 hover:text-white"><ExternalLink size={16} />View site</Link>
           <button onClick={out} className="flex items-center gap-2 px-3 py-2 text-white/70 hover:text-white w-full"><LogOut size={16} />Sign out</button>
         </div>

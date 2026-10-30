@@ -6,8 +6,12 @@ import { compressImage, blobToDataUrl } from './format'
 
 const KEY = 'apgl_demo_v1'
 const db = () => {
-  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) return d } catch {}
-  const d = structuredClone(seed); localStorage.setItem(KEY, JSON.stringify(d)); return d
+  let d; try { d = JSON.parse(localStorage.getItem(KEY)) } catch {}
+  let dirty = false
+  if (!d) { d = structuredClone(seed); dirty = true }
+  if (!d.admins) { d.admins = structuredClone(seed.admins); dirty = true } // older demo data
+  if (dirty) localStorage.setItem(KEY, JSON.stringify(d))
+  return d
 }
 const commit = (d) => localStorage.setItem(KEY, JSON.stringify(d))
 const uid = () => crypto.randomUUID()
@@ -16,6 +20,14 @@ const last10 = (p) => String(p || '').replace(/\D/g, '').slice(-10)
 export const resetDemo = () => localStorage.removeItem(KEY)
 
 /* ---------- auth ---------- */
+// Creating/deleting OTHER admins needs Supabase's secret key, which must never sit in the browser.
+// So those actions go through a small Edge Function (supabase/functions/admin-users) that checks you are an admin first.
+const fn = async (body) => {
+  const { data, error } = await supabase.functions.invoke('admin-users', { body })
+  if (error) throw new Error(error.message)
+  if (data?.error) throw new Error(data.error)
+  return data
+}
 export const auth = {
   async session() {
     if (DEMO) return sessionStorage.getItem('apgl_admin') ? { demo: true } : null
@@ -23,13 +35,61 @@ export const auth = {
   },
   async signIn(email, password) {
     if (DEMO) {
-      if (password !== 'admin123') throw new Error('Demo mode password is: admin123')
-      return sessionStorage.setItem('apgl_admin', '1')
+      const a = db().admins.find((x) => x.email.toLowerCase() === email.trim().toLowerCase() && x.password === password)
+      if (!a) throw new Error('Wrong email or password')
+      return sessionStorage.setItem('apgl_admin', a.email)
     }
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: s, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw new Error('Wrong email or password')
+    const { data } = await supabase.from('admins').select('user_id').eq('user_id', s.user.id).maybeSingle()
+    if (!data) { await supabase.auth.signOut(); throw new Error('This account is not an admin') }
+  },
+  // Who is signed in + do they still have the default password?
+  async me() {
+    if (DEMO) {
+      const a = db().admins.find((x) => x.email === sessionStorage.getItem('apgl_admin'))
+      return a ? { email: a.email, mustChange: a.must_change } : null
+    }
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const { data } = await supabase.from('admins').select('must_change_password').eq('user_id', user.id).maybeSingle()
+    return data ? { email: user.email, mustChange: data.must_change_password } : null
+  },
+  async changePassword(pw) {
+    if (DEMO) {
+      const d = db(), email = sessionStorage.getItem('apgl_admin')
+      d.admins = d.admins.map((a) => (a.email === email ? { ...a, password: pw, must_change: false } : a))
+      return commit(d)
+    }
+    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.auth.updateUser({ password: pw })
     if (error) throw error
+    ok(await supabase.from('admins').update({ must_change_password: false }).eq('user_id', user.id))
   },
   async signOut() { DEMO ? sessionStorage.removeItem('apgl_admin') : await supabase.auth.signOut() },
+}
+
+/* ---------- admin accounts ---------- */
+export async function listAdmins() {
+  if (DEMO) return db().admins.map(({ password, ...a }) => a)
+  return ok(await supabase.from('admins').select('*').order('created_at')).map((a) => ({ ...a, id: a.user_id, must_change: a.must_change_password }))
+}
+export async function createAdmin(email, password) {
+  if (DEMO) {
+    const d = db()
+    if (d.admins.some((a) => a.email.toLowerCase() === email.toLowerCase())) throw new Error('That email is already an admin')
+    d.admins.push({ id: uid(), email, password, must_change: true, created_at: new Date().toISOString() })
+    return commit(d)
+  }
+  await fn({ action: 'create', email, password })
+}
+export async function resetAdminPassword(id, password) {
+  if (DEMO) { const d = db(); d.admins = d.admins.map((a) => (a.id === id ? { ...a, password, must_change: true } : a)); return commit(d) }
+  await fn({ action: 'reset', id, password })
+}
+export async function deleteAdmin(id) {
+  if (DEMO) { const d = db(); d.admins = d.admins.filter((a) => a.id !== id); return commit(d) }
+  await fn({ action: 'delete', id })
 }
 
 /* ---------- settings ---------- */

@@ -27,7 +27,6 @@ export default function Footer() {
             <li><Link className="hover:text-white" to="/order-status">Check order status</Link></li>
             <li><Link className="hover:text-white" to="/enquiry-list">My enquiry list</Link></li>
             <li><a className="hover:text-white" href={waLink(s.whatsapp, 'Hello APGL, I need a bulk quote.')} target="_blank" rel="noreferrer">Bulk / contractor quote</a></li>
-            <li><Link className="hover:text-white" to="/admin">Staff login</Link></li>
           </ul>
         </div>
         <div>
