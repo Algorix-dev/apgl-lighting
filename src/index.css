@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* TIP: These are the APGL logo colours. Change a hex here and the WHOLE site updates,
+   because every component uses bg-brand, text-accent, bg-gold etc. */
+@theme {
+  --color-brand: #0f3a96;
+  --color-brand-dark: #0a2a70;
+  --color-accent: #d0161b;
+  --color-gold: #e0a02a;
+  --color-sky: #29a8e0;
+  --color-wa: #25d366;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+body { background: #f3f5f9; color: #1c2333; }
+.container-x { max-width: 1280px; margin-inline: auto; padding-inline: 1rem; }
+.input { width: 100%; border: 1px solid #d5dae5; border-radius: .5rem; padding: .55rem .75rem; background: #fff; outline: none; }
+.input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgb(15 58 150 / .12); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .5rem; padding: .6rem 1rem; font-weight: 700; transition: .15s; cursor: pointer; }
+.btn-primary { background: var(--color-brand); color: #fff; } .btn-primary:hover { background: var(--color-brand-dark); }
+.btn-wa { background: var(--color-wa); color: #fff; } .btn-wa:hover { filter: brightness(.92); }
+.btn-ghost { background: #fff; border: 1px solid #d5dae5; } .btn-ghost:hover { border-color: var(--color-brand); color: var(--color-brand); }
+.btn-danger { background: #fff; border: 1px solid #f3c1c3; color: var(--color-accent); }
+.scrollbar-none::-webkit-scrollbar { display: none; }
