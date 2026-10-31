@@ -5,7 +5,7 @@ import { useAsync, useSettings } from '../../lib/hooks'
 import { ORDER_STATUSES, naira, waLink } from '../../lib/format'
 import { Loading, WaIcon } from '../../components/ui'
 
-const blank = { customer_name: '', phone: '', items: '', total: '', status: 'Pending', note: '' }
+const blank = { customer_name: '', phone: '', items: '', total: '', status: '', note: '' }
 
 // TIP: Orders are agreed on WhatsApp. Log one here so the customer gets a code
 // and can check progress on /order-status. Changing the dropdown updates it instantly.
@@ -26,7 +26,7 @@ export default function Orders() {
           <input required className="input" placeholder="Customer phone" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
           <input required className="input sm:col-span-2" placeholder="Items (e.g. 2x Black Dome Pendant, 1x Floor Lamp)" value={f.items} onChange={(e) => setF({ ...f, items: e.target.value })} />
           <input type="number" className="input" placeholder="Total (₦)" value={f.total} onChange={(e) => setF({ ...f, total: e.target.value })} />
-          <select className="input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>{ORDER_STATUSES.map((x) => <option key={x}>{x}</option>)}</select>
+          <select required className="input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}><option value="" disabled>Select order status…</option>{ORDER_STATUSES.map((x) => <option key={x}>{x}</option>)}</select>
           <input className="input sm:col-span-2" placeholder="Note shown to customer (optional)" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
           <button className="btn btn-primary w-fit">Create order</button>
         </form>)}

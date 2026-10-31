@@ -74,7 +74,7 @@ export default function Shop() {
             <div><h1 className="text-2xl font-extrabold">{heading}</h1><p className="text-sm text-slate-500">{loading ? 'Loading…' : `${list.length} product${list.length !== 1 ? 's' : ''}`}</p></div>
             <div className="flex gap-2">
               <button className="lg:hidden btn btn-ghost !py-2 text-sm" onClick={() => setFilters(!filters)} aria-expanded={filters}><SlidersHorizontal size={16} />Filters</button>
-              <select className="input !w-auto !py-2 text-sm font-semibold" value={sort} onChange={(e) => set('sort', e.target.value === 'featured' ? '' : e.target.value)} aria-label="Sort products">{SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+              <select className="input !w-auto !py-2 text-sm font-semibold" value={sp.get('sort') || ''} onChange={(e) => set('sort', e.target.value)} aria-label="Sort products"><option value="" disabled>Sort by…</option>{SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
             </div>
           </div>
           {filters && <div className="lg:hidden card p-5 mb-4">{Filters}</div>}

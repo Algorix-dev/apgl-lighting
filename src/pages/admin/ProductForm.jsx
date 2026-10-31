@@ -4,7 +4,7 @@ import { ImagePlus, X, Star, Plus } from 'lucide-react'
 import { getProduct, saveProduct, listCategories, uploadImage } from '../../lib/store'
 import { useAsync } from '../../lib/hooks'
 
-const empty = { name: '', category_id: '', price: '', old_price: '', stock_status: 'in_stock', description: '', images: [], featured: false, is_new: false, visible: true }
+const empty = { name: '', category_id: '', price: '', old_price: '', stock_status: '', description: '', images: [], featured: false, is_new: false, visible: true }
 
 export default function ProductForm() {
   const { id } = useParams()
@@ -18,7 +18,7 @@ export default function ProductForm() {
 
   useEffect(() => {
     if (!id) return
-    getProduct(id).then((p) => { if (p) { setF(p); const e = Object.entries(p.specs || {}); setSpecs(e.length ? e : [['', '']]) } })
+    getProduct(id).then((p) => { if (p) { setF({ ...p, price: p.price || '' }); const e = Object.entries(p.specs || {}); setSpecs(e.length ? e : [['', '']]) } })
   }, [id])
 
   const addImages = async (files) => {
@@ -49,10 +49,10 @@ export default function ProductForm() {
         <label className="grid gap-1 text-sm font-semibold">Product name<input required className="input font-normal" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. Crystal Ring Chandelier" /></label>
         <div className="grid sm:grid-cols-2 gap-3">
           <label className="grid gap-1 text-sm font-semibold">Category
-            <select required className="input font-normal" value={f.category_id || ''} onChange={(e) => set('category_id', e.target.value)}><option value="">Select…</option>{(cats || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+            <select required className="input font-normal" value={f.category_id || ''} onChange={(e) => set('category_id', e.target.value)}><option value="" disabled>Select a category…</option>{(cats || []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
           <label className="grid gap-1 text-sm font-semibold">Availability
-            <select className="input font-normal" value={f.stock_status} onChange={(e) => set('stock_status', e.target.value)}><option value="in_stock">In stock</option><option value="on_request">Available on request</option><option value="out_of_stock">Out of stock</option></select></label>
-          <label className="grid gap-1 text-sm font-semibold">Price (₦)<input required type="number" min="0" className="input font-normal" value={f.price} onChange={(e) => set('price', e.target.value)} /></label>
+            <select required className="input font-normal" value={f.stock_status} onChange={(e) => set('stock_status', e.target.value)}><option value="" disabled>Select availability…</option><option value="in_stock">In stock</option><option value="on_request">Available on request</option><option value="out_of_stock">Out of stock</option></select></label>
+          <label className="grid gap-1 text-sm font-semibold">Price (₦) <span className="font-normal text-slate-400 text-xs">leave empty to show &quot;Price on request&quot;</span><input type="number" min="0" className="input font-normal" value={f.price} onChange={(e) => set('price', e.target.value)} /></label>
           <label className="grid gap-1 text-sm font-semibold">Old price (₦) <span className="font-normal text-slate-400 text-xs">optional — shows a discount badge</span><input type="number" min="0" className="input font-normal" value={f.old_price || ''} onChange={(e) => set('old_price', e.target.value)} /></label>
         </div>
         <label className="grid gap-1 text-sm font-semibold">Description<textarea rows={4} className="input font-normal" value={f.description} onChange={(e) => set('description', e.target.value)} /></label>

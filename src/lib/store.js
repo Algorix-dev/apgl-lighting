@@ -4,7 +4,7 @@ import { supabase, DEMO } from './supabase'
 import { seed } from './seed'
 import { compressImage, blobToDataUrl } from './format'
 
-const KEY = 'apgl_demo_v1'
+const KEY = 'apgl_demo_v2' // bumped when the real catalogue replaced the sample products
 const db = () => {
   let d; try { d = JSON.parse(localStorage.getItem(KEY)) } catch {}
   let dirty = false

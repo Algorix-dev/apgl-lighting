@@ -23,7 +23,13 @@ Click **Reset demo data** in the admin banner to restore it.
    (Or with the CLI: `supabase functions deploy admin-users`.)
 6. Copy `.env.example` to `.env` and fill in Project URL + anon key (Project Settings > API).
 7. Run the site, sign in at `/admin`, open **Settings**, set the real WhatsApp number (format `2348012345678`).
-8. Delete the demo products/categories and add the real ones.
+8. Load the starter catalogue: SQL Editor > paste `supabase/seed-products.sql` > Run. This adds 8 categories and 133 products (photos are in `public/products`, so deploy the site first). Safe to run again; anything that already exists is skipped.
+9. Open **Admin > Products** and type each price into the Price column (Enter saves). Tick "Show only products without a price" to see what is left. Unpriced products show "Price on request" in the shop.
+
+## Adding products and categories later
+- **Admin > Categories**: add a category (name + photo). It appears in the shop menu once it has a product.
+- **Admin > Products > Add product**: nothing is pre-selected. Category and availability must be chosen, price is optional.
+- Starter list lives in `src/lib/catalog.js` (also used by demo mode). Real data lives in Supabase, so edit products in the admin, not in that file.
 
 ## 3. Deploy (Cloudflare Workers, free for commercial use)
 Push to GitHub, then Cloudflare > Workers & Pages > Create > connect the repo.
