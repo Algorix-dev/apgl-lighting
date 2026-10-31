@@ -44,7 +44,7 @@ const EnqCtx = createContext({})
 export const useEnquiry = () => useContext(EnqCtx)
 export function EnquiryProvider({ children }) {
   const [items, setItems] = useState(() => { try { return JSON.parse(localStorage.getItem('apgl_enq')) || [] } catch { return [] } })
-  useEffect(() => localStorage.setItem('apgl_enq', JSON.stringify(items)), [items])
+  useEffect(() => { localStorage.setItem('apgl_enq', JSON.stringify(items)) }, [items])
   const add = (id) => setItems((l) => (l.find((i) => i.id === id) ? l : [...l, { id, qty: 1 }]))
   const remove = (id) => setItems((l) => l.filter((i) => i.id !== id))
   const setQty = (id, qty) => setItems((l) => l.map((i) => (i.id === id ? { ...i, qty: Math.max(1, qty) } : i)))

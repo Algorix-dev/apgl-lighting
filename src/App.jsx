@@ -16,13 +16,15 @@ import Categories from './pages/admin/Categories'
 import Reviews from './pages/admin/Reviews'
 import Orders from './pages/admin/Orders'
 import Settings from './pages/admin/Settings'
+import { CONFIG_PROBLEM } from './lib/supabase'
 import Profile from './pages/admin/Profile'
 import Admins from './pages/admin/Admins'
 
 function Storefront() {
   const { pathname } = useLocation()
-  useEffect(() => window.scrollTo(0, 0), [pathname])
-  return (<><Header /><main className="min-h-[60vh]"><Outlet /></main><Footer /></>)
+  // TIP: braces matter! `() => window.scrollTo()` would RETURN scrollTo's result, and React treats a returned value as a cleanup function.
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return (<>{CONFIG_PROBLEM && <div className="bg-red-600 text-white text-sm p-3 text-center">{CONFIG_PROBLEM}</div>}<Header /><main className="min-h-[60vh]"><Outlet /></main><Footer /></>)
 }
 
 export default function App() {
