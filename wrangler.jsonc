@@ -1,0 +1,10 @@
+{
+  // TIP: this tells Cloudflare to serve the built site (dist) and to send every unknown URL
+  // (like /product/123 after a refresh) to index.html, so React can show the right page.
+  "name": "apgl-lighting",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

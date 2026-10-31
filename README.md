@@ -25,8 +25,11 @@ Click **Reset demo data** in the admin banner to restore it.
 7. Run the site, sign in at `/admin`, open **Settings**, set the real WhatsApp number (format `2348012345678`).
 8. Delete the demo products/categories and add the real ones.
 
-## 3. Deploy (Cloudflare Pages, free for commercial use)
-Build command `npm run build`, output folder `dist`, add the two `VITE_` variables. `public/_redirects` handles page refreshes.
+## 3. Deploy (Cloudflare Workers, free for commercial use)
+Push to GitHub, then Cloudflare > Workers & Pages > Create > connect the repo.
+Build command `npm run build`, deploy command `npx wrangler deploy`.
+Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **Build variables** (they are read when the site is built).
+`wrangler.jsonc` makes page refreshes work. Then Settings > Domains & Routes > Add custom domain (apex + www).
 
 ## Where to change things
 | Want to change | File |
