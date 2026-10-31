@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Package, Tags, MessageSquareText, Truck, Settings as Cog, LogOut, ExternalLink, UserCircle, ShieldPlus } from 'lucide-react'
 import { useAuth } from '../../lib/hooks'
+import { useSeo } from '../../lib/seo'
 import { auth, resetDemo } from '../../lib/store'
 import { DEMO } from '../../lib/supabase'
 
@@ -12,6 +13,7 @@ const links = [
 
 // TIP: every admin page sits inside this layout, so the login check lives in ONE place.
 export default function AdminLayout() {
+  useSeo({ title: 'Admin | APGL', noindex: true }) // TIP: tells Google never to list admin pages. Real protection is the login + database rules.
   const { session, me, refresh } = useAuth()
   const { pathname } = useLocation()
   if (session === undefined) return <div className="p-10">Loading…</div>

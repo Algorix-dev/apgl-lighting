@@ -10,9 +10,9 @@ export const waNumber = (raw) => {
 export const waLink = (raw, text) => `https://wa.me/${waNumber(raw)}?text=${encodeURIComponent(text)}`
 
 export const STOCK = {
-  in_stock: { label: 'In stock', cls: 'bg-green-100 text-green-700' },
-  on_request: { label: 'Available on request', cls: 'bg-amber-100 text-amber-700' },
-  out_of_stock: { label: 'Out of stock', cls: 'bg-red-100 text-red-700' },
+  in_stock: { label: 'In stock', cls: 'bg-green-100 text-green-700', dot: 'bg-green-500', text: 'text-green-700' },
+  on_request: { label: 'On request', cls: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500', text: 'text-amber-700' },
+  out_of_stock: { label: 'Out of stock', cls: 'bg-red-100 text-red-700', dot: 'bg-red-500', text: 'text-red-700' },
 }
 export const ORDER_STEPS = ['Pending', 'Confirmed', 'Packed', 'Out for delivery', 'Delivered']
 export const ORDER_STATUSES = [...ORDER_STEPS, 'Cancelled']

@@ -3,8 +3,10 @@ import { Navigate } from 'react-router-dom'
 import { auth } from '../../lib/store'
 import { DEMO } from '../../lib/supabase'
 import { useAuth } from '../../lib/hooks'
+import { useSeo } from '../../lib/seo'
 
 export default function Login() {
+  useSeo({ title: 'Admin | APGL', noindex: true }) // TIP: tells Google never to list admin pages. Real protection is the login + database rules.
   const { session, refresh } = useAuth()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')

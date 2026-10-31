@@ -3,16 +3,18 @@
 /* TIP: These are the APGL logo colours. Change a hex here and the WHOLE site updates,
    because every component uses bg-brand, text-accent, bg-gold etc. */
 @theme {
-  --color-brand: #0f3a96;
-  --color-brand-dark: #0a2a70;
+  --color-brand: #12377f;
+  --color-brand-dark: #09265f;
   --color-accent: #d0161b;
-  --color-gold: #e0a02a;
+  --color-gold: #f4a51c;
   --color-sky: #29a8e0;
-  --color-wa: #25d366;
-  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --color-wa: #16c968;
+  --font-sans: "Manrope", system-ui, sans-serif;
 }
 
 body { background: #f3f5f9; color: #1c2333; }
+/* TIP: these shared classes live in @layer components so Tailwind classes (hidden, sm:flex, !py-2) can always override them. */
+@layer components {
 .container-x { max-width: 1280px; margin-inline: auto; padding-inline: 1rem; }
 .input { width: 100%; border: 1px solid #d5dae5; border-radius: .5rem; padding: .55rem .75rem; background: #fff; outline: none; }
 .input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgb(15 58 150 / .12); }
@@ -22,3 +24,12 @@ body { background: #f3f5f9; color: #1c2333; }
 .btn-ghost { background: #fff; border: 1px solid #d5dae5; } .btn-ghost:hover { border-color: var(--color-brand); color: var(--color-brand); }
 .btn-danger { background: #fff; border: 1px solid #f3c1c3; color: var(--color-accent); }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+/* TIP: shared look for every white panel on the storefront. Change radius/shadow here once. */
+.card { background: #fff; border: 1px solid #e3e7f0; border-radius: .875rem; box-shadow: 0 1px 2px rgb(9 38 95 / .04); }
+.card-hover { transition: box-shadow .2s, transform .2s, border-color .2s; }
+.card-hover:hover { box-shadow: 0 10px 28px rgb(9 38 95 / .12); transform: translateY(-2px); border-color: #c7d2ea; }
+.btn-gold { background: var(--color-gold); color: var(--color-brand-dark); } .btn-gold:hover { filter: brightness(.95); }
+.btn-outline-light { border: 1.5px solid rgb(255 255 255 / .6); color: #fff; } .btn-outline-light:hover { background: rgb(255 255 255 / .12); }
+}
+:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

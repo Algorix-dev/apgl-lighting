@@ -1,71 +1,65 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Search, ClipboardList, Menu, X, PackageSearch, Phone } from 'lucide-react'
-import { useSettings, useEnquiry, useAsync } from '../lib/hooks'
-import { listCategories } from '../lib/store'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { ClipboardList, Menu, X, PackageSearch, Search } from 'lucide-react'
+import { useSettings, useEnquiry, useCatalog } from '../lib/hooks'
 import { waLink } from '../lib/format'
 import { WaIcon } from './ui'
+import SearchBox from './SearchBox'
 
 export default function Header() {
   const s = useSettings()
   const { items } = useEnquiry()
-  const nav = useNavigate()
-  const [q, setQ] = useState('')
-  const [open, setOpen] = useState(false)
-  const [cats] = useAsync(listCategories)
+  const { categories } = useCatalog()
+  const { pathname, search } = useLocation()
+  const [menu, setMenu] = useState(false)
+  const [mSearch, setMSearch] = useState(false)
+  useEffect(() => { setMenu(false); setMSearch(false) }, [pathname, search])
 
-  const search = (e) => { e.preventDefault(); nav(`/shop?q=${encodeURIComponent(q)}`); setOpen(false) }
+  const cat = new URLSearchParams(search).get('category')
+  const onShop = pathname === '/shop'
+  const goContact = () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+  const link = (active) => `px-3.5 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${active ? 'border-gold text-white' : 'border-transparent text-white/80 hover:text-white'}`
 
   return (
-    <header className="sticky top-0 z-40 shadow-sm">
-      {s.announcement && (
-        <div className="bg-brand-dark text-white text-xs sm:text-sm text-center py-1.5 px-3">{s.announcement}</div>
-      )}
-      <div className="bg-white">
+    <header className="sticky top-0 z-40">
+      {s.announcement && <div className="bg-brand-dark text-white/90 text-xs text-center py-1.5 px-3 leading-snug">{s.announcement}</div>}
+
+      <div className="bg-white border-b border-slate-200">
         <div className="container-x flex items-center gap-3 py-2.5">
-          <button className="lg:hidden p-1" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X /> : <Menu />}</button>
-          <Link to="/" className="shrink-0"><img src="/logo.jpg" alt="APGL" className="h-10 sm:h-14 w-auto" /></Link>
+          <button className="lg:hidden p-2 -ml-2" onClick={() => setMenu(!menu)} aria-label={menu ? 'Close menu' : 'Open menu'} aria-expanded={menu}>{menu ? <X /> : <Menu />}</button>
+          <Link to="/" className="shrink-0" aria-label="APGL home"><img src="/logo.jpg" alt="APGL - Ajay Pristine Golden Links Limited" className="h-9 sm:h-12 w-auto" /></Link>
+          <div className="hidden md:block flex-1 max-w-2xl mx-auto"><SearchBox /></div>
 
-          <form onSubmit={search} className="hidden md:flex flex-1 max-w-2xl">
-            <input value={q} onChange={(e) => setQ(e.target.value)} className="input !rounded-r-none" placeholder="Search chandeliers, pendants, wall lights…" />
-            <button className="btn btn-primary !rounded-l-none px-5"><Search size={18} />Search</button>
-          </form>
-
-          <nav className="ml-auto flex items-center gap-1 sm:gap-3 text-sm font-semibold">
-            <a href={waLink(s.whatsapp, 'Hello APGL, I need help choosing a light.')} target="_blank" rel="noreferrer" className="hidden sm:flex btn btn-wa !py-2"><WaIcon />Chat with us</a>
-            <Link to="/order-status" className="hidden lg:flex items-center gap-1.5 px-2 hover:text-brand"><PackageSearch size={20} />Order status</Link>
-            <Link to="/enquiry-list" className="relative flex items-center gap-1.5 px-2 hover:text-brand">
-              <ClipboardList size={22} /><span className="hidden lg:inline">Enquiry list</span>
-              {items.length > 0 && <span className="absolute -top-1 left-5 bg-accent text-white text-[10px] font-bold rounded-full min-w-4 h-4 px-1 grid place-items-center">{items.length}</span>}
+          <nav aria-label="Account shortcuts" className="ml-auto flex items-center gap-1 sm:gap-2">
+            <button className="md:hidden p-2" onClick={() => setMSearch(!mSearch)} aria-label="Search"><Search size={21} /></button>
+            <Link to="/order-status" className="hidden lg:flex items-center gap-1.5 px-2.5 py-2 text-sm font-semibold hover:text-brand"><PackageSearch size={19} />Order status</Link>
+            <Link to="/enquiry-list" className="relative flex items-center gap-1.5 px-2.5 py-2 text-sm font-semibold hover:text-brand" aria-label={`Enquiry list, ${items.length} items`}>
+              <ClipboardList size={21} /><span className="hidden lg:inline">Enquiry list</span>
+              {items.length > 0 && <span className="absolute -top-0.5 left-6 bg-accent text-white text-[10px] font-bold rounded-full min-w-4 h-4 px-1 grid place-items-center">{items.length}</span>}
             </Link>
+            <a href={waLink(s.whatsapp, 'Hello APGL, I need help choosing a light.')} target="_blank" rel="noreferrer" className="hidden sm:inline-flex btn btn-wa !py-2 !px-3.5 text-sm"><WaIcon size={17} />WhatsApp</a>
           </nav>
         </div>
-
-        <form onSubmit={search} className="md:hidden container-x pb-2.5 flex">
-          <input value={q} onChange={(e) => setQ(e.target.value)} className="input !rounded-r-none" placeholder="Search lights…" />
-          <button className="btn btn-primary !rounded-l-none"><Search size={18} /></button>
-        </form>
+        {mSearch && <div className="md:hidden container-x pb-3"><SearchBox autoFocus /></div>}
       </div>
 
-      {/* Category bar — TIP: change `bg-brand` to `bg-brand-dark` for a darker strip */}
-      <div className="bg-brand text-white hidden lg:block">
-        <div className="container-x flex gap-1 overflow-x-auto scrollbar-none">
-          <NavLink to="/shop" end className="px-3 py-2.5 text-sm font-bold hover:bg-white/10 whitespace-nowrap">All products</NavLink>
-          {(cats || []).map((c) => (
-            <NavLink key={c.id} to={`/shop?category=${c.id}`} className="px-3 py-2.5 text-sm font-medium hover:bg-white/10 whitespace-nowrap">{c.name}</NavLink>
-          ))}
+      <nav aria-label="Categories" className="bg-brand hidden lg:block">
+        <div className="container-x flex overflow-x-auto scrollbar-none">
+          <Link to="/" className={link(pathname === '/')}>Home</Link>
+          <Link to="/shop" className={link(onShop && !cat)}>All products</Link>
+          {categories.map((c) => <Link key={c.id} to={`/shop?category=${c.id}`} className={link(onShop && cat === c.id)}>{c.name}</Link>)}
+          <button onClick={goContact} className={link(false) + ' ml-auto'}>Contact</button>
         </div>
-      </div>
+      </nav>
 
-      {open && (
-        <div className="lg:hidden bg-white border-t max-h-[70vh] overflow-y-auto">
-          <Link onClick={() => setOpen(false)} to="/shop" className="block px-4 py-3 font-bold border-b">All products</Link>
-          {(cats || []).map((c) => (
-            <Link onClick={() => setOpen(false)} key={c.id} to={`/shop?category=${c.id}`} className="block px-4 py-3 border-b">{c.name}</Link>
+      {menu && (
+        <nav aria-label="Mobile menu" className="lg:hidden bg-white border-b shadow-lg max-h-[70vh] overflow-y-auto">
+          {[['/', 'Home'], ['/shop', 'All products'], ...categories.map((c) => [`/shop?category=${c.id}`, c.name]), ['/order-status', 'Check order status']].map(([to, label]) => (
+            <Link key={to} to={to} className="block px-5 py-3.5 border-b border-slate-100 font-semibold">{label}</Link>
           ))}
-          <Link onClick={() => setOpen(false)} to="/order-status" className="block px-4 py-3 border-b text-brand font-semibold">Check order status</Link>
-          <a href={waLink(s.whatsapp, 'Hello APGL')} className="flex items-center gap-2 px-4 py-3 text-green-600 font-bold"><WaIcon />Chat on WhatsApp</a>
-        </div>
+          <button onClick={() => { setMenu(false); setTimeout(goContact, 50) }} className="block w-full text-left px-5 py-3.5 border-b border-slate-100 font-semibold">Contact</button>
+          <a href={waLink(s.whatsapp, 'Hello APGL')} className="flex items-center gap-2 px-5 py-3.5 text-green-700 font-bold"><WaIcon />Chat on WhatsApp</a>
+        </nav>
       )}
     </header>
   )

@@ -39,3 +39,15 @@ Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **Build variables** (the
 | Hero slide speed | `src/pages/Home.jsx` (`5000`) |
 | WhatsApp message wording | `ProductCard.jsx`, `Product.jsx`, `EnquiryList.jsx` |
 | Order steps | `src/lib/format.js` (`ORDER_STEPS`) |
+
+## Storefront design system (redesign)
+- Brand colours live in `src/index.css` (`@theme`). Navy `#09265f`, blue `#12377f`, gold `#f4a51c`, WhatsApp green `#16c968`.
+- Homepage hero photos are fixed brand images in `public/brand/` (`hero-1.jpg`, `hero-2.jpg`, `hero-3.jpg`, `project.jpg`). Replace them with your best photos. They do not come from the database, so the homepage never looks empty.
+- Products, categories and ratings are loaded once (`CatalogProvider` in `src/lib/hooks.jsx`) and shared by search, home, shop and footer.
+- Shared look: `.card`, `.btn-*` and `.input` in `src/index.css`. Shared pieces: `ProductCard`, `SearchBox`, `Breadcrumbs`, `EmptyState`, `Skeleton`, toasts.
+
+## SEO and Google
+- Set `VITE_SITE_URL=https://yourdomain.com` (Cloudflare Build variables + `.env`).
+- Every build runs `scripts/generate-sitemap.mjs`, which writes `sitemap.xml` (all visible products) and `robots.txt`. New products appear in the sitemap after the next deploy (push to GitHub or trigger a rebuild).
+- Each page sets its own title, description, canonical link, social-share tags and structured data (Organization, Product, Breadcrumb). Admin pages are marked `noindex`.
+- After launch: add the site in Google Search Console and submit `https://yourdomain.com/sitemap.xml`.
